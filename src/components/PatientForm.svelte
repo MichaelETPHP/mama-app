@@ -1,5 +1,6 @@
 <script>
   import { format } from 'date-fns';
+  import { onMount } from 'svelte';
 
   let name = '';
   let dob = '';
@@ -8,29 +9,66 @@
   let temperature = '';
   let bp = '';
   let oxygenRate = '';
+  let nurseName = '';
   let submittedDate = '';
   let patientData = [];
+  let isSubmitting = false;
+  let showConfirmation = false;
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    // Handle form submission
-    const newData = { name, dob, weight, age, temperature, bp, oxygenRate, submittedDate: format(new Date(), 'MMMM d, yyyy HH:mm:ss') };
-    patientData = [...patientData, newData];
-    // Reset form fields
-    name = '';
-    dob = '';
-    weight = '';
-    age = '';
-    temperature = '';
-    bp = '';
-    oxygenRate = '';
+    isSubmitting = true;
+
+    const newData = {
+      name,
+      dob,
+      weight,
+      age,
+      temperature,
+      bp,
+      oxygenRate,
+      nurseName,
+      submittedDate: format(new Date(), 'MMMM d, yyyy HH:mm:ss')
+    };
+
+    try {
+      const response = await fetch('http://localhost:3001/submit-patient-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newData)
+      });
+
+      if (response.ok) {
+        patientData = [...patientData, newData];
+        name = '';
+        dob = '';
+        weight = '';
+        age = '';
+        temperature = '';
+        bp = '';
+        oxygenRate = '';
+        nurseName = '';
+        showConfirmation = true;
+        setTimeout(() => {
+          showConfirmation = false;
+        }, 3000); // Hide confirmation after 3 seconds
+      } else {
+        console.error('Error submitting data:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error submitting data:', error);
+    } finally {
+      isSubmitting = false;
+    }
   }
 </script>
 
-<div class="max-w-6xl mx-auto p-8 bg-white shadow-lg rounded-lg">
+<div class="max-w-6xl mx-auto p-15 bg-white shadow-lg rounded-lg">
   <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaKmEzWkCLrxkMYGRRQRPqELEoC9v3L90hIA&s" alt="Logo" class="mx-auto mb-6 rounded-full"/>
   <h2 class="text-3xl font-bold text-center mb-6">Patient Vital Signs</h2>
-  <form on:submit={handleSubmit} class="space-y-6 mb-8">
+  <form on:submit={handleSubmit} class="space-y-2 mb-8">
     <div class="relative">
       <label class="block text-gray-700" for="name">Patient Name:</label>
       <input type="text" id="name" bind:value={name} required class="w-full px-4 py-3 pl-12 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"/>
@@ -66,8 +104,22 @@
       <input type="text" id="oxygenRate" bind:value={oxygenRate} required class="w-full px-4 py-3 pl-12 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"/>
       <i class="fas fa-lungs absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
     </div>
-    <button type="submit" class="w-full bg-blue-500 text-white py-3 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Submit</button>
+    <div class="relative">
+      <label class="block text-gray-700" for="nurseName">Nurse Name:</label>
+      <input type="text" id="nurseName" bind:value={nurseName} required class="w-full px-4 py-3 pl-12 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+      <i class="fas fa-user-nurse absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+    </div>
+    <button type="submit" class="w-full bg-blue-500 text-white py-3 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center" disabled={isSubmitting}>
+      {#if isSubmitting}
+        <i class="fas fa-spinner animate-spin"></i>
+      {/if}
+      <span>Submit</span>
+    </button>
   </form>
+
+  {#if showConfirmation}
+    <div class="text-green-500 text-center mt-4">Data submitted successfully!</div>
+  {/if}
 
   {#if patientData.length > 0}
     <table class="w-full text-left border-collapse">
@@ -80,6 +132,7 @@
           <th class="px-4 py-2 border">Temperature (°C)</th>
           <th class="px-4 py-2 border">Blood Pressure</th>
           <th class="px-4 py-2 border">Oxygen Rate (%)</th>
+          <th class="px-4 py-2 border">Nurse Name</th>
           <th class="px-4 py-2 border">Submitted Date</th>
         </tr>
       </thead>
@@ -93,6 +146,7 @@
             <td class="px-4 py-2 border">{data.temperature}</td>
             <td class="px-4 py-2 border">{data.bp}</td>
             <td class="px-4 py-2 border">{data.oxygenRate}</td>
+            <td class="px-4 py-2 border">{data.nurseName}</td>
             <td class="px-4 py-2 border">{data.submittedDate}</td>
           </tr>
         {/each}

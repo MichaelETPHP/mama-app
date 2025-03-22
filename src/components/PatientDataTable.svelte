@@ -1,5 +1,6 @@
 <script>
   export let data = [];
+  export let onDelete;
   let searchQuery = '';
 
   function formatDateTime(isoString) {
@@ -19,6 +20,24 @@
   $: filteredData = data.filter(patient =>
     patient.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Pagination variables
+  let currentPage = 1;
+  const itemsPerPage = 7;
+
+  // Calculate paginated data
+  $: paginatedData = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Calculate total pages
+  $: totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+  // Function to change page
+  function changePage(newPage) {
+    currentPage = newPage;
+  }
 </script>
 
 <div class="w-full bg-white shadow-lg rounded-lg p-4 md:p-6 overflow-x-auto">
@@ -41,11 +60,12 @@
         <th class="px-4 py-2 border text-gray-700">BP</th>
         <th class="px-4 py-2 border text-gray-700">Oxygen (%)</th>
         <th class="px-4 py-2 border text-gray-700">Submitted Date</th>
+        <th class="px-4 py-2 border text-gray-700">Actions</th>
       </tr>
     </thead>
     <tbody>
-      {#if filteredData.length > 0}
-        {#each filteredData as patient}
+      {#if paginatedData.length > 0}
+        {#each paginatedData as patient}
           <tr class="hover:bg-gray-100">
             <td class="px-4 py-2 border">{patient.name}</td>
             <td class="px-4 py-2 border">{patient.weight}</td>
@@ -53,13 +73,42 @@
             <td class="px-4 py-2 border">{patient.bp}</td>
             <td class="px-4 py-2 border">{patient.oxygenRate}</td>
             <td class="px-4 py-2 border">{formatDateTime(patient.submittedDate)}</td>
+            <td class="px-4 py-2 border text-center">
+              <button
+                class="text-red-500 hover:text-red-700"
+                on:click={() => onDelete(patient.id)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </td>
           </tr>
         {/each}
       {:else}
         <tr>
-          <td colspan="6" class="text-center py-4">No data available</td>
+          <td colspan="7" class="text-center py-4">No data available</td>
         </tr>
       {/if}
     </tbody>
   </table>
+
+  <!-- Pagination Controls -->
+  <div class="flex justify-center mt-4 space-x-2">
+    <button
+      class="px-3 py-1 border rounded hover:bg-gray-100"
+      on:click={() => changePage(currentPage - 1)}
+      disabled={currentPage === 1}
+    >
+      Previous
+    </button>
+    <span class="px-3 py-1">Page {currentPage} of {totalPages}</span>
+    <button
+      class="px-3 py-1 border rounded hover:bg-gray-100"
+      on:click={() => changePage(currentPage + 1)}
+      disabled={currentPage === totalPages}
+    >
+      Next
+    </button>
+  </div>
 </div>

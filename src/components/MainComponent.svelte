@@ -46,7 +46,7 @@
 
   async function fetchPatientData() {
     try {
-      const response = await fetch('http://localhost:3001/api/get-patient-data');
+      const response = await fetch('https://node-js-tau-inky.vercel.app/api/get-patient-data');
       if (response.ok) {
         const data = await response.json();
         patientData = data;

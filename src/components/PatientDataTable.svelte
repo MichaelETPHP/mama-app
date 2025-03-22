@@ -16,8 +16,11 @@
     return date.toLocaleString('en-US', options).replace(",", "");
   }
 
+  // Sort data by submittedDate in descending order
+  $: sortedData = data.sort((a, b) => new Date(b.submittedDate) - new Date(a.submittedDate));
+
   // Filter data based on search query
-  $: filteredData = data.filter(patient =>
+  $: filteredData = sortedData.filter(patient =>
     patient.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -54,11 +57,9 @@
   <table class="w-full text-left border-collapse table-auto">
     <thead>
       <tr class="bg-gray-200">
-          <th class="px-4 py-2 border text-gray-700">Temperature (°C)</th>
-          <th class="px-4 py-2 border text-gray-700">BP</th>
+        <th class="px-4 py-2 border text-gray-700">Temperature (°C)</th>
+        <th class="px-4 py-2 border text-gray-700">BP</th>
         <th class="px-4 py-2 border text-gray-700">Weight (kg)</th>
-      
-        
         <th class="px-4 py-2 border text-gray-700">Oxygen (%)</th>
         <th class="px-4 py-2 border text-gray-700">Submitted Date</th>
         <th class="px-4 py-2 border text-gray-700">Actions</th>
@@ -68,12 +69,10 @@
       {#if paginatedData.length > 0}
         {#each paginatedData as patient}
           <tr class="hover:bg-gray-100">
-               <td class="px-4 py-2 border">{patient.temperature}</td>
-                  <td class="px-4 py-2 border">{patient.bp}</td>
-            <td class="px-4 py-2 border">{patient.weight}</td>
-      
-         
-            <td class="px-4 py-2 border">{patient.oxygenRate}</td>
+            <td class="px-4 py-2 border">{patient.temperature} °C</td>
+            <td class="px-4 py-2 border">{patient.bp}</td>
+            <td class="px-4 py-2 border">{patient.weight} kg</td>
+            <td class="px-4 py-2 border">{patient.oxygenRate} %</td>
             <td class="px-4 py-2 border">{formatDateTime(patient.submittedDate)}</td>
             <td class="px-4 py-2 border text-center">
               <button

@@ -67,7 +67,7 @@
     </thead>
     <tbody>
       {#if paginatedData.length > 0}
-        {#each paginatedData as patient}
+        {#each paginatedData as patient} 
           <tr class="hover:bg-gray-100">
             <td class="px-4 py-2 border">{patient.temperature} °C</td>
             <td class="px-4 py-2 border">{patient.bp}</td>

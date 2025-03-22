@@ -6,6 +6,7 @@
 
   let patientData = [];
   let showConfirmation = false;
+  let showDeleteConfirmation = false;
   let errorMessage = '';
 
   // Patient Profile Data
@@ -96,11 +97,19 @@
     <PatientForm onSubmit={handleSubmit} />
 
     <!-- Data Display Card -->
-    <PatientDataTable data={patientData} />
+    <PatientDataTable data={patientData} onDelete={deletePatient} />
   </div>
 
   {#if showConfirmation}
-    <div class="text-green-500 text-center mt-4">Data submitted successfully!</div>
+    <div class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow-lg opacity-100 transition-opacity duration-1000 text-center w-full max-w-xs">
+      Data submitted successfully!
+    </div>
+  {/if}
+
+  {#if showDeleteConfirmation}
+    <div class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded shadow-lg opacity-100 transition-opacity duration-1000 text-center w-full max-w-xs">
+      Data deleted successfully!
+    </div>
   {/if}
 
   {#if errorMessage}

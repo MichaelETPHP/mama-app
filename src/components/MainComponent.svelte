@@ -1,4 +1,3 @@
-<!-- MainComponent.svelte -->
 <script>
   import { onMount } from 'svelte';
   import PatientForm from './PatientForm.svelte';
@@ -22,7 +21,7 @@
 
   async function handleSubmit(newData) {
     try {
-      const response = await fetch('http://localhost:3001/api/submit-patient-data', {
+      const response = await fetch('https://hello.adeycustom.com/api.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -46,7 +45,7 @@
 
   async function fetchPatientData() {
     try {
-      const response = await fetch('http://localhost:3001/api/get-patient-data');
+      const response = await fetch('https://hello.adeycustom.com/api.php');
       if (response.ok) {
         const data = await response.json();
         patientData = data;
@@ -63,13 +62,12 @@
   });
 </script>
 
-<div class="container mx-auto p-6 border rounded-lg shadow-lg w-full max-w-30xl flex flex-col space-y-6">
+<div class="container mx-auto p-6 border rounded-lg shadow-lg w-full max-w-7xl flex flex-col space-y-6">
   <!-- Patient Profile Card -->
   <PatientProfile {patientProfile} />
 
   <!-- Form and Data Display Section -->
-  <div class="flex space-x-6 mt-6">
-    
+  <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6 mt-6">
     <!-- Form Card -->
     <PatientForm onSubmit={handleSubmit} />
 

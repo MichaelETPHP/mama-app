@@ -6,7 +6,6 @@
 
   let patientData = [];
   let showConfirmation = false;
-  let showDeleteConfirmation = false;
   let errorMessage = '';
 
   // Patient Profile Data
@@ -87,34 +86,24 @@
   });
 </script>
 
-<div class="min-h-screen flex flex-col items-center justify-start bg-gray-100 p-4 md:p-6">
-  <div class="container mx-auto w-full max-w-7xl flex flex-col space-y-6">
-    <!-- Patient Profile Card -->
-    <PatientProfile {patientProfile} />
+<div class="container mx-auto p-6 border rounded-lg shadow-lg w-full max-w-7xl flex flex-col space-y-6">
+  <!-- Patient Profile Card -->
+  <PatientProfile {patientProfile} />
 
-    <!-- Form and Data Display Section -->
-    <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6 mt-6 w-full">
-      <!-- Form Card -->
-      <PatientForm onSubmit={handleSubmit} class="w-full md:w-1/2" />
+  <!-- Form and Data Display Section -->
+  <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6 mt-6">
+    <!-- Form Card -->
+    <PatientForm onSubmit={handleSubmit} />
 
-      <!-- Data Display Card -->
-      <PatientDataTable data={patientData} onDelete={deletePatient} class="w-full md:w-1/2" />
-    </div>
-
-    {#if showConfirmation}
-      <div class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg opacity-100 transform transition-opacity duration-1000">
-        Data submitted successfully!
-      </div>
-    {/if}
-
-    {#if showDeleteConfirmation}
-      <div class="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg opacity-100 transform transition-opacity duration-1000">
-        Data deleted successfully!
-      </div>
-    {/if}
-
-    {#if errorMessage}
-      <div class="text-red-500 text-center mt-4">{errorMessage}</div>
-    {/if}
+    <!-- Data Display Card -->
+    <PatientDataTable data={patientData} />
   </div>
+
+  {#if showConfirmation}
+    <div class="text-green-500 text-center mt-4">Data submitted successfully!</div>
+  {/if}
+
+  {#if errorMessage}
+    <div class="text-red-500 text-center mt-4">{errorMessage}</div>
+  {/if}
 </div>

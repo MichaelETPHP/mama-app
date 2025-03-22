@@ -22,7 +22,7 @@
 
   async function handleSubmit(newData) {
     try {
-      const response = await fetch('http://localhost:3001/api/submit-patient-data', {
+      const response = await fetch('https://hello.adeycustom.com/api.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

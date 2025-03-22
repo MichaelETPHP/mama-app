@@ -7,6 +7,7 @@
 
   let patientData = [];
   let showConfirmation = false;
+  let errorMessage = '';
 
   // Patient Profile Data
   let patientProfile = {
@@ -21,7 +22,7 @@
 
   async function handleSubmit(newData) {
     try {
-      const response = await fetch('http://localhost:3001/submit-patient-data', {
+      const response = await fetch('http://localhost:3001/api/submit-patient-data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -36,24 +37,24 @@
           showConfirmation = false;
         }, 3000); // Hide confirmation after 3 seconds
       } else {
-        console.error('Error submitting data:', response.statusText);
+        errorMessage = `Error submitting data: ${response.statusText}`;
       }
     } catch (error) {
-      console.error('Error submitting data:', error);
+      errorMessage = `Error submitting data: ${error.message}`;
     }
   }
 
   async function fetchPatientData() {
     try {
-      const response = await fetch('http://localhost:3001/get-patient-data');
+      const response = await fetch('http://localhost:3001/api/get-patient-data');
       if (response.ok) {
         const data = await response.json();
         patientData = data;
       } else {
-        console.error('Error fetching data:', response.statusText);
+        errorMessage = `Error fetching data: ${response.statusText}`;
       }
     } catch (error) {
-      console.error('Error fetching data:', error);
+      errorMessage = `Error fetching data: ${error.message}`;
     }
   }
 
@@ -61,12 +62,14 @@
     fetchPatientData();
   });
 </script>
+
 <div class="container mx-auto p-6 border rounded-lg shadow-lg w-full max-w-30xl flex flex-col space-y-6">
   <!-- Patient Profile Card -->
   <PatientProfile {patientProfile} />
 
   <!-- Form and Data Display Section -->
   <div class="flex space-x-6 mt-6">
+    
     <!-- Form Card -->
     <PatientForm onSubmit={handleSubmit} />
 
@@ -76,5 +79,9 @@
 
   {#if showConfirmation}
     <div class="text-green-500 text-center mt-4">Data submitted successfully!</div>
+  {/if}
+
+  {#if errorMessage}
+    <div class="text-red-500 text-center mt-4">{errorMessage}</div>
   {/if}
 </div>

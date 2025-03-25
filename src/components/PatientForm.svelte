@@ -1,4 +1,3 @@
-<!-- PatientForm.svelte -->
 <script>
   import { format } from 'date-fns';
 
@@ -6,12 +5,12 @@
 
   let name = 'B.Biruktawit T';
   let dob = '2023-11-05';
-  let weight = '';
+  let weight = '8';
   let age = '1';
-  let temperature = '';
-  let bp = '';
-  let oxygenRate = '';
-  let nurseName = '';
+  let temperature = '36.5';
+  let bp = '120/70';
+  let oxygenRate = '152';
+  let nurseName = 'Lidya';
   let isSubmitting = false;
 
   async function handleSubmit(event) {
@@ -21,14 +20,16 @@
     const newData = {
       name,
       dob,
-      weight,
-      age,
-      temperature,
+      weight: parseFloat(weight), // Ensure weight is parsed as a float
+      age: parseInt(age), // Ensure age is parsed as an integer
+      temperature: parseFloat(temperature), // Ensure temperature is parsed as a float
       bp,
-      oxygenRate,
+      oxygenRate: parseFloat(oxygenRate), // Ensure oxygenRate is parsed as a float
       nurseName,
       submittedDate: format(new Date(), 'MMMM d, yyyy HH:mm:ss')
     };
+
+    console.log("Data being submitted:", newData); // Log the data
 
     try {
       await onSubmit(newData);
@@ -67,7 +68,7 @@
     </div>
     <div class="relative">
       <label class="block text-gray-700" for="weight">Weight (kg):</label>
-      <input type="number" id="weight" bind:value={weight} required class="w-full px-4 py-2 pl-10 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+      <input type="number" id="weight" bind:value={weight} step="0.1" required class="w-full px-4 py-2 pl-10 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"/>
       <i class="fas fa-weight absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
     </div>
     <div class="relative">
@@ -77,7 +78,7 @@
     </div>
     <div class="relative">
       <label class="block text-gray-700" for="temperature">Temperature (°C):</label>
-      <input type="text" id="temperature" bind:value={temperature} required class="w-full px-4 py-2 pl-10 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+      <input type="number" id="temperature" bind:value={temperature} step="0.1" required class="w-full px-4 py-2 pl-10 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"/>
       <i class="fas fa-thermometer-half absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
     </div>
     <div class="relative">
@@ -87,7 +88,7 @@
     </div>
     <div class="relative">
       <label class="block text-gray-700" for="oxygenRate">Oxygen Rate (%):</label>
-      <input type="text" id="oxygenRate" bind:value={oxygenRate} required class="w-full px-4 py-2 pl-10 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+      <input type="number" id="oxygenRate" bind:value={oxygenRate} step="0.1" required class="w-full px-4 py-2 pl-10 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"/>
       <i class="fas fa-lungs absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
     </div>
     <div class="relative">

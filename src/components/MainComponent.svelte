@@ -1,118 +1,138 @@
 <script>
-  import { onMount } from 'svelte';
-  import PatientForm from './PatientForm.svelte';
-  import PatientDataTable from './PatientDataTable.svelte';
   import PatientProfile from './PatientProfile.svelte';
-
-  let patientData = [];
-  let showConfirmation = false;
-  let showDeleteConfirmation = false;
-  let errorMessage = '';
+  import Navigation from './Navigation.svelte'; // Adjust the path as needed
 
   // Patient Profile Data
   let patientProfile = {
-    image: 'https://via.placeholder.com/150', // Ensure the image URL is correct
-    cardNumber: '1234567890',
-    admissionDate: '2024-03-21',
-    motherName: 'Mother Name',
-    address: 'Address of the patient',
-    dob: '2023-11-05',
+    image: 'https://i.postimg.cc/fRGQhT16/2B0A0912.jpg', // Ensure the image URL is correct
+    patientName: 'B. Biruktawit T',
+    cardNumber: '121347',
+    admissionDate: '11-3-2025',
+    motherName: 'Biruktawit T',
+    address: 'Addis Ababa - Sub City - Akaki Kality',
+    dob: '11-05-2013',
     createdDate: '2024-03-21'
   };
 
-  async function handleSubmit(newData) {
-    try {
-      const response = await fetch('https://hello.adeycustom.com/api.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(newData)
-      });
+  // Hospital Details
+  const hospitalLogo = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaKmEzWkCLrxkMYGRRQRPqELEoC9v3L90hIA&s'; // Replace with your actual hospital logo URL
+  const hospitalName = 'Betezata Hospital';
 
-      if (response.ok) {
-        await fetchPatientData();
-        showConfirmation = true;
-        setTimeout(() => {
-          showConfirmation = false;
-        }, 4000); // Hide confirmation after 4 seconds
-      } else {
-        errorMessage = `Error submitting data: ${response.statusText}`;
-      }
-    } catch (error) {
-      errorMessage = `Error submitting data: ${error.message}`;
+  // Helper function to calculate age
+  function calculateAge(dob) {
+    const today = new Date();
+    const birthDate = new Date(dob);
+    let years = today.getFullYear() - birthDate.getFullYear();
+    let months = today.getMonth() - birthDate.getMonth();
+
+    if (months < 0 || (months === 0 && today.getDate() < birthDate.getDate())) {
+      years--;
+      months += 12;
     }
+
+    return `${years} Year${years > 1 ? 's' : ''} and ${months} Month${months > 1 ? 's' : ''}`;
   }
-
-  async function fetchPatientData() {
-    try {
-      const response = await fetch('https://hello.adeycustom.com/api.php');
-      if (response.ok) {
-        const data = await response.json();
-        patientData = data;
-      } else {
-        errorMessage = `Error fetching data: ${response.statusText}`;
-      }
-    } catch (error) {
-      errorMessage = `Error fetching data: ${error.message}`;
-    }
-  }
-
-  async function deletePatient(id) {
-    try {
-      const response = await fetch('https://hello.adeycustom.com/api.php', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ id })
-      });
-
-      if (response.ok) {
-        await fetchPatientData();
-        showDeleteConfirmation = true;
-        setTimeout(() => {
-          showDeleteConfirmation = false;
-        }, 4000); // Hide confirmation after 4 seconds
-      } else {
-        errorMessage = `Error deleting data: ${response.statusText}`;
-      }
-    } catch (error) {
-      errorMessage = `Error deleting data: ${error.message}`;
-    }
-  }
-
-  onMount(() => {
-    fetchPatientData();
-  });
 </script>
 
-<div class="container mx-auto p-6 border rounded-lg shadow-lg w-full max-w-7xl flex flex-col space-y-6">
-  <!-- Patient Profile Card -->
-  <PatientProfile {patientProfile} />
+<!-- Entrance Animation -->
+<div class="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
+  <!-- Navigation Component -->
+  <Navigation />
 
-  <!-- Form and Data Display Section -->
-  <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6 mt-6">
-    <!-- Form Card -->
-    <PatientForm onSubmit={handleSubmit} />
+  <!-- Patient Profile Section -->
+  <div class="container mx-auto p-6 mt-8 w-full max-w-5xl bg-white rounded-lg shadow-lg transform transition duration-700 hover:scale-[1.01]">
+    <!-- Hospital Name and Logo -->
+    <div class="flex items-center justify-center mb-6 space-x-4">
+      <img
+        src={hospitalLogo}
+        alt="Hospital Logo"
+        class="w-16 h-16 rounded-full object-cover shadow-md animate-fade-in"
+      />
+      <h1 class="text-3xl font-bold text-gray-800">{hospitalName}</h1>
+    </div>
 
-    <!-- Data Display Card -->
-    <PatientDataTable data={patientData} onDelete={deletePatient} />
+    <h1 class="text-2xl font-semibold text-center text-gray-700 mb-6">Patient Information</h1>
+
+    <!-- Profile Card -->
+    <div class="flex flex-col md:flex-row gap-6">
+      <!-- Profile Image -->
+      <div class="flex-shrink-0 w-full md:w-1/3">
+        <img
+          src={patientProfile.image}
+          alt="Patient Profile"
+          class="w-full h-auto rounded-lg shadow-md object-cover animate-fade-in"
+        />
+      </div>
+
+      <!-- Profile Details Table -->
+      <div class="flex-grow w-full md:w-2/3">
+        <div class="border border-gray-300 rounded-lg overflow-hidden">
+          <table class="min-w-full border-collapse border border-gray-300">
+            <tbody class="divide-y divide-dotted divide-gray-300">
+              <!-- Card Number -->
+              <tr class="hover:bg-gray-50 transition duration-300">
+                <td class="px-4 py-3 font-semibold text-gray-600">Card Number:</td>
+                <td class="px-4 py-3 text-lg font-bold text-gray-800">{patientProfile.cardNumber}</td>
+              </tr>
+              <!-- Removed <hr>, styling will handle row borders -->
+
+              <!-- Name -->
+              <tr class="hover:bg-gray-50 transition duration-300">
+                <td class="px-4 py-3 font-semibold text-gray-600">Name:</td>
+                <td class="px-4 py-3 text-lg font-bold text-gray-800">{patientProfile.patientName}</td>
+              </tr>
+
+              <!-- Date of Admission -->
+              <tr class="hover:bg-gray-50 transition duration-300">
+                <td class="px-4 py-3 font-semibold text-gray-600">Date of Admission:</td>
+                <td class="px-4 py-3 text-lg font-bold text-gray-800">{patientProfile.admissionDate}</td>
+              </tr>
+              <!-- Removed <hr>, styling will handle row borders -->
+
+              <!-- Age -->
+              <tr class="hover:bg-gray-50 transition duration-300">
+                <td class="px-4 py-3 font-semibold text-gray-600">Age:</td>
+                <td class="px-4 py-3 text-lg font-bold text-gray-800">{calculateAge(patientProfile.dob)}</td>
+              </tr>
+              <!-- Mother's Name -->
+              <tr class="hover:bg-gray-50 transition duration-300 border-b border-dotted border-gray-300">
+                <td class="px-4 py-3 font-semibold text-gray-600">Mother's Name:</td>
+                <td class="px-4 py-3 text-lg font-bold text-gray-800">{patientProfile.motherName}</td>
+              </tr>
+
+              <!-- Address -->
+              <tr class="hover:bg-gray-50 transition duration-300 border-b border-dotted border-gray-300">
+                <td class="px-4 py-3 font-semibold text-gray-600">Address:</td>
+                <td class="px-4 py-3 text-lg font-bold text-gray-800">{patientProfile.address}</td>
+              </tr>
+
+              <!-- Date of Birth -->
+              <tr class="hover:bg-gray-50 transition duration-300 border-b border-dotted border-gray-300">
+                <td class="px-4 py-3 font-semibold text-gray-600">Date of Birth:</td>
+                <td class="px-4 py-3 text-lg font-bold text-gray-800">{patientProfile.dob}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
-
-  {#if showConfirmation}
-    <div class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow-lg opacity-100 transition-opacity duration-1000 text-center w-full max-w-xs">
-      Data submitted successfully!
-    </div>
-  {/if}
-
-  {#if showDeleteConfirmation}
-    <div class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded shadow-lg opacity-100 transition-opacity duration-1000 text-center w-full max-w-xs">
-      Data deleted successfully!
-    </div>
-  {/if}
-
-  {#if errorMessage}
-    <div class="text-red-500 text-center mt-4">{errorMessage}</div>
-  {/if}
 </div>
+
+<style>
+  /* Custom Fade-In Animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 1s ease-in-out;
+  }
+</style>

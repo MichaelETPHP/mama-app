@@ -9,7 +9,7 @@
   let age = '1';
   let temperature = '36.5';
   let bp = '120/70';
-  let oxygenRate = '152';
+  let oxygenRate = '90.6';
   let nurseName = 'Lidya';
   let isSubmitting = false;
 

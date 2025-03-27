@@ -33,10 +33,15 @@
     feeding_time: '',
     feed_by: '',
     feeding_item: '',
-    next_feeding_time: ''
+    ml_drink: 0,
   };
   let errorMessage = '';
   let successMessage = '';
+
+  // Timer state
+  let timerActive = false;
+  let remainingTime = 0; // Remaining time in seconds
+  let intervalId;
 
   // Fetch feeding data from the API
   async function fetchFeedingData() {
@@ -69,8 +74,9 @@
       if (response.ok) {
         const result = await response.json();
         successMessage = result.message;
-        fetchFeedingData(); // Refresh the data after submission
+        await fetchFeedingData(); // Refresh the data after submission
         resetForm(); // Reset the form fields
+        setupTimer(); // Initialize the timer based on the latest data
       } else {
         const errorResult = await response.json();
         errorMessage = errorResult.error || 'Error submitting data.';
@@ -92,7 +98,8 @@
       });
 
       if (response.ok) {
-        fetchFeedingData(); // Refresh the data after deletion
+        await fetchFeedingData(); // Refresh the data after deletion
+        setupTimer(); // Reset the timer after deletion
       } else {
         const errorResult = await response.json();
         errorMessage = errorResult.error || 'Error deleting data.';
@@ -108,75 +115,52 @@
       feeding_time: '',
       feed_by: '',
       feeding_item: '',
-      next_feeding_time: ''
+      ml_drink: 0,
     };
   }
 
-  // Format countdown time
-  function formatCountdown(nextFeedingTime) {
-    const now = new Date();
-    const nextTime = new Date(nextFeedingTime);
-    const diffMs = nextTime - now;
-
-    if (diffMs <= 0) {
-      return 'Feeding Time!';
-    }
-
-    const diffSec = Math.floor(diffMs / 1000);
-    const hours = Math.floor(diffSec / 3600);
-    const minutes = Math.floor((diffSec % 3600) / 60);
-    const seconds = diffSec % 60;
-
-    return `${hours}h ${minutes}m ${seconds}s`;
-  }
-
-  // Show browser notifications
-  function showNotification(message) {
-    if (!('Notification' in window)) {
-      alert(message); // Fallback for browsers that don't support notifications
+  // Initialize timer based on the latest feeding time
+  function setupTimer() {
+    clearInterval(intervalId); // Clear existing timer
+    if (feedingData.length === 0) {
+      timerActive = false;
       return;
     }
 
-    if (Notification.permission === 'granted') {
-      new Notification(message);
-    } else if (Notification.permission !== 'denied') {
-      Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-          new Notification(message);
+    // Get the latest feeding time
+    const latestFeedingTime = new Date(feedingData[0].feeding_time).getTime();
+    const nextFeedingTime = latestFeedingTime + 3600 * 1000; // 1 hour later
+    const now = Date.now();
+
+    if (nextFeedingTime > now) {
+      remainingTime = Math.floor((nextFeedingTime - now) / 1000); // Convert to seconds
+      timerActive = true;
+      intervalId = setInterval(() => {
+        remainingTime--;
+        if (remainingTime <= 0) {
+          clearInterval(intervalId);
+          timerActive = false;
+          alert("Feeding time is up!"); // Notify the user
         }
-      });
+      }, 1000);
+    } else {
+      timerActive = false;
     }
   }
 
-  // Add a notification counter for each record
-  let notificationCounters = {};
-
-  // Check countdown and trigger notifications
-  function checkNotifications() {
-    const now = new Date();
-    feedingData.forEach((record) => {
-      const nextTime = new Date(record.next_feeding_time);
-
-      // Initialize notification counter for the record if not already set
-      if (!notificationCounters[record.id]) {
-        notificationCounters[record.id] = 0;
-      }
-
-      // Trigger notification only if the counter is less than 5
-      if (nextTime <= now && notificationCounters[record.id] < 5) {
-        showNotification(`It's time to feed "${record.feeding_item}"!`);
-        notificationCounters[record.id]++; // Increment the counter
-      }
-    });
+  // Format remaining time for display
+  function formatRemainingTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours}h ${minutes}m ${secs}s`;
   }
 
-  // Fetch data and set up interval for notifications
-  onMount(() => {
-    fetchFeedingData();
-    setInterval(() => {
-      fetchFeedingData(); // Refresh data periodically
-      checkNotifications(); // Check for notifications
-    }, 1000); // Check every second
+  // Fetch data and set up timer on component mount
+  onMount(async () => {
+    await fetchFeedingData();
+    setupTimer(); // Initialize the timer based on the latest data
+    return () => clearInterval(intervalId); // Cleanup on unmount
   });
 </script>
 
@@ -192,6 +176,27 @@
   {#if errorMessage}
     <div class="bg-red-100 text-red-700 p-4 rounded mb-4">{errorMessage}</div>
   {/if}
+
+  <!-- Countdown Timer Section -->
+  <div class="mb-6 bg-white p-4 border rounded-lg shadow-md flex items-center space-x-4">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <div>
+      <h2 class="text-xl font-semibold">Next Feeding Countdown</h2>
+      <p class="text-lg">
+        {#if timerActive}
+          Time Remaining: {formatRemainingTime(remainingTime)}
+        {:else}
+          {#if feedingData.length > 0}
+            <span class="text-red-500">Feeding Time!</span>
+          {:else}
+            No feeding data submitted yet.
+          {/if}
+        {/if}
+      </p>
+    </div>
+  </div>
 
   <!-- Form and Table Layout -->
   <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
@@ -231,12 +236,14 @@
         />
       </div>
       <div class="mb-4">
-        <label class="block text-sm font-medium mb-2" for="next_feeding_time">Next Feeding Time</label>
+        <label class="block text-sm font-medium mb-2" for="ml_drink">How much ml Drink</label>
         <input
-          type="datetime-local"
-          id="next_feeding_time"
-          bind:value={formData.next_feeding_time}
+          type="number"
+          id="ml_drink"
+          bind:value={formData.ml_drink}
+          step="0.01"
           class="w-full p-2 border rounded"
+          placeholder="Enter ml consumed"
           required
         />
       </div>
@@ -254,8 +261,7 @@
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feeding Time</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feed By</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feeding Item</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Feeding Time</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Countdown</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">How much ml Drink</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
@@ -265,14 +271,7 @@
               <td class="px-6 py-4 whitespace-nowrap">{record.feeding_time}</td>
               <td class="px-6 py-4 whitespace-nowrap">{record.feed_by}</td>
               <td class="px-6 py-4 whitespace-nowrap">{record.feeding_item}</td>
-              <td class="px-6 py-4 whitespace-nowrap">{record.next_feeding_time}</td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                {#if new Date(record.next_feeding_time) > new Date()}
-                  <span>{formatCountdown(record.next_feeding_time)}</span>
-                {:else}
-                  <span class="text-red-500">Feeding Time!</span>
-                {/if}
-              </td>
+              <td class="px-6 py-4 whitespace-nowrap">{record.ml_drink} ml</td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <button
                   on:click={() => handleDelete(record.id)}

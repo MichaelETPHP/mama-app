@@ -18,6 +18,9 @@
   const hospitalLogo = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaKmEzWkCLrxkMYGRRQRPqELEoC9v3L90hIA&s'; // Replace with your actual hospital logo URL
   const hospitalName = 'Betezata Hospital';
 
+  // Developer Contact Information
+  const developerPhone = '+251-916-182-957'; // Replace with the actual developer phone number
+
   // Helper function to calculate age
   function calculateAge(dob) {
     const today = new Date();
@@ -56,12 +59,14 @@
     <!-- Profile Card -->
     <div class="flex flex-col md:flex-row gap-6">
       <!-- Profile Image -->
-      <div class="flex-shrink-0 w-full md:w-1/3">
-        <img
-          src={patientProfile.image}
-          alt="Patient Profile"
-          class="w-full h-auto rounded-lg shadow-md object-cover animate-fade-in"
-        />
+      <div class="flex-shrink-0 w-full md:w-1/3 flex justify-center">
+        <div class="relative w-40 h-40">
+          <img
+            src={patientProfile.image}
+            alt="Patient Profile"
+            class="w-full h-full rounded-full object-cover shadow-md border-4 border-gray-200 animate-fade-in"
+          />
+        </div>
       </div>
 
       <!-- Profile Details Table -->
@@ -74,7 +79,6 @@
                 <td class="px-4 py-3 font-semibold text-gray-600">Card Number:</td>
                 <td class="px-4 py-3 text-lg font-bold text-gray-800">{patientProfile.cardNumber}</td>
               </tr>
-              <!-- Removed <hr>, styling will handle row borders -->
 
               <!-- Name -->
               <tr class="hover:bg-gray-50 transition duration-300">
@@ -87,13 +91,13 @@
                 <td class="px-4 py-3 font-semibold text-gray-600">Date of Admission:</td>
                 <td class="px-4 py-3 text-lg font-bold text-gray-800">{patientProfile.admissionDate}</td>
               </tr>
-              <!-- Removed <hr>, styling will handle row borders -->
 
               <!-- Age -->
               <tr class="hover:bg-gray-50 transition duration-300">
                 <td class="px-4 py-3 font-semibold text-gray-600">Age:</td>
                 <td class="px-4 py-3 text-lg font-bold text-gray-800">{calculateAge(patientProfile.dob)}</td>
               </tr>
+
               <!-- Mother's Name -->
               <tr class="hover:bg-gray-50 transition duration-300 border-b border-dotted border-gray-300">
                 <td class="px-4 py-3 font-semibold text-gray-600">Mother's Name:</td>
@@ -115,6 +119,11 @@
           </table>
         </div>
       </div>
+    </div>
+
+    <!-- Developer Phone Footer -->
+    <div class="mt-6 p-4 bg-gray-100 rounded-b-lg text-center text-sm text-gray-600 border-t border-gray-300">
+      <span>Developed by Michael | Contact: {developerPhone}</span>
     </div>
   </div>
 </div>

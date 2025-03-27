@@ -10,5 +10,5 @@
 
 
 <main class="flex items-center justify-center">
-<div><center>Dev By Michael</center></div>
+
 </main>

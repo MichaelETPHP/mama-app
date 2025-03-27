@@ -26,6 +26,10 @@
       icon: 'vital-icon'
     }
   ];
+
+  // Patient Profile Image (Baby Image)
+  const babyImage =
+    'https://i.postimg.cc/fRGQhT16/2B0A0912.jpg'; // Replace with your actual image URL
 </script>
 
 <!-- Navigation Cards -->
@@ -34,10 +38,21 @@
     {#each navLinks as link}
       <a
         href={link.href}
-        class={`block ${link.bgColor} text-white p-6 rounded-lg shadow-md hover:${link.hoverBgColor} transition-all duration-300 transform hover:-translate-y-1`}
+        class={`relative block ${link.bgColor} text-white rounded-lg shadow-md overflow-hidden transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg`}
       >
+        <!-- Baby Image in Corner -->
+        <div
+          class="absolute top-1 right-1 w-24 h-24 rounded-full overflow-hidden  border-white shadow-md opacity-12"
+        >
+          <img
+            src={babyImage}
+            alt="Baby Profile"
+            class="w-full h-full object-cover"
+          />
+        </div>
+
         <!-- Icon -->
-        <div class="flex justify-center mb-4">
+        <div class="flex justify-center mt-8 mb-4">
           {#if link.icon === 'home-icon'}
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -87,8 +102,10 @@
         </div>
 
         <!-- Title and Description -->
-        <h2 class="text-xl font-bold mb-2 text-center">{link.title}</h2>
-        <p class="text-sm text-center">{link.description}</p>
+        <div class="p-6">
+          <h2 class="text-xl font-bold text-center mb-2">{link.title}</h2>
+          <p class="text-sm text-center">{link.description}</p>
+        </div>
       </a>
     {/each}
   </div>
@@ -101,7 +118,7 @@
       transform: rotate(0deg);
     }
     to {
-      transform: rotate(360deg);
+      transform: rotate(380deg);
     }
   }
 

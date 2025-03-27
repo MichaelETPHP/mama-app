@@ -11,7 +11,9 @@
     motherName: 'Biruktawit T',
     address: 'Addis Ababa - Sub City - Akaki Kality',
     dob: '11-05-2013',
-    createdDate: '2024-03-21'
+    createdDate: '2024-03-21',
+    age: "1 Year and 4 Months" // This will be calculated dynamically
+
   };
 
   // Hospital Details
@@ -95,7 +97,7 @@
               <!-- Age -->
               <tr class="hover:bg-gray-50 transition duration-300">
                 <td class="px-4 py-3 font-semibold text-gray-600">Age:</td>
-                <td class="px-4 py-3 text-lg font-bold text-gray-800">{calculateAge(patientProfile.dob)}</td>
+                <td class="px-4 py-3 text-lg font-bold text-gray-800">{patientProfile.age}</td>
               </tr>
 
               <!-- Mother's Name -->

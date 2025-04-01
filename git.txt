@@ -1,0 +1,12 @@
+# Fetch the latest changes from the remote repository
+git fetch origin
+
+# Merge the fetched changes into your local branch
+git merge origin/main
+
+# If there are any merge conflicts, resolve them manually
+# After resolving conflicts, commit the changes
+git commit -m "Update API Del"
+
+# Push your local changes to the remote repository
+git push origin main

@@ -1,0 +1,104 @@
+.product-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  border-radius: 16px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  width: 300px;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover {
+  transform: scale(1.05);
+}
+
+.image-container {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+}
+
+.property-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.type-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #fff;
+  color: #000;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.details {
+  padding: 15px 20px; /* Add padding for better spacing */
+  width: 100%;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px; /* Add spacing between title and location */
+  text-align: left;
+}
+
+.location {
+  font-size: 14px;
+  color: #666;
+  text-align: left;
+  margin-bottom: 16px; /* Add spacing between location and specs */
+}
+
+.specs {
+  display: flex;
+  justify-content: space-between; /* Align specs horizontally */
+  margin-bottom: 16px; /* Add spacing between specs and price */
+  font-size: 14px;
+  color: #666;
+}
+
+.specs span {
+  display: flex;
+  align-items: center;
+}
+
+.specs i {
+  margin-right: 8px; /* Add spacing between icon and text */
+}
+
+.price {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  border-top: 1px dashed #ccc; /* Add a dashed line above the price */
+  padding-top: 12px; /* Add padding for better spacing */
+}
+
+.upvote-button {
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.upvote-button i {
+  font-size: 16px;
+}

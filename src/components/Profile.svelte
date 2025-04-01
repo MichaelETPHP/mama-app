@@ -1,6 +1,6 @@
 <script>
-  import ProfileHeader from '../components/ProfileHeader.svelte';
-  import CoverImage from '../components/CoverImage.svelte';
+  import ProfileHeader from './ProfileHeader.svelte';
+  import CoverImage from './CoverImage.svelte';
 //   import Tabs from './components/Tabs.svelte';
 //   import StatsCard from './components/StatsCard.svelte';
 
@@ -8,8 +8,8 @@
     name: 'Duran Clayton',
     title: 'UI/UX Designer',
     location: 'London, England',
-    avatarUrl: 'https://via.placeholder.com/150',
-    coverImageUrl: 'https://via.placeholder.com/1920x500',
+    avatarUrl: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg',
+    coverImageUrl: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg',
   };
 
   const statsData = [
@@ -21,7 +21,7 @@
 
 <div class="profile-container">
   <ProfileHeader {profileData} />
-  <CoverImage {coverImageUrl} />
+  <CoverImage coverImageUrl={profileData.coverImageUrl} />
   <!-- <Tabs /> -->
   <div class="stats-container">
     {#each statsData as stat}

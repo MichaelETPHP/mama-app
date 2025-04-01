@@ -1,5 +1,5 @@
 <script>
-  import Profile from '../../components/Profile.svelte'; // Import your custom Profile component
+  import Profile from '../../components/MyProfile.svelte'; // Corrected path to the Profile component
 
   // Sample profile data (you can replace this with dynamic data fetching later)
   const profileData = {

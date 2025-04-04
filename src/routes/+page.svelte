@@ -1,10 +1,11 @@
 <script>
-  import PatientForm from '../components/MainComponent.svelte';
+  
+  import FrontPage from '../routes/FrontPage.svelte';
 </script>
 
 <main class="flex items-center justify-center min-h-screen bg-gray-100">
-  
-  <PatientForm />
+  <FrontPage />
+ 
   
 </main>
 

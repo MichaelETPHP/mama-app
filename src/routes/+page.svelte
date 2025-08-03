@@ -3,22 +3,29 @@
   import FrontPage from '../routes/FrontPage.svelte';
   import Navigation from '../components/Navigation.svelte';
 
-  let showGoFundMeModal = false;
+  let showTreatmentModal = false;
+  let timeRemaining = 10;
 
   onMount(() => {
-    // Show GoFundMe modal after page loads
+    // Show treatment promotion modal after page loads
     setTimeout(() => {
-      showGoFundMeModal = true;
+      showTreatmentModal = true;
+      startCountdown();
     }, 1000);
-
-    // Auto-remove modal after 3 seconds
-    setTimeout(() => {
-      showGoFundMeModal = false;
-    }, 4000);
   });
 
+  function startCountdown() {
+    const countdown = setInterval(() => {
+      timeRemaining--;
+      if (timeRemaining <= 0) {
+        clearInterval(countdown);
+        closeModal();
+      }
+    }, 1000);
+  }
+
   function closeModal() {
-    showGoFundMeModal = false;
+    showTreatmentModal = false;
   }
 </script>
 
@@ -30,11 +37,11 @@
   <FrontPage />
 </div>
 
-<!-- GoFundMe Modal -->
-{#if showGoFundMeModal}
+<!-- Simple GoFundMe Modal -->
+{#if showTreatmentModal}
   <div class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 animate-fade-in">
     <div class="relative max-w-2xl mx-4">
-      <!-- Modal Container -->
+      <!-- Simple Modal Container -->
       <div class="bg-white rounded-2xl shadow-2xl p-6 relative">
         <!-- Close Button -->
         <button
@@ -44,25 +51,14 @@
           <i class="fas fa-times"></i>
         </button>
 
-        <!-- Modal Header -->
-        <div class="text-center mb-6">
-          <h2 class="text-2xl font-bold text-gray-800 mb-2">
-            <i class="fas fa-heart text-red-500 mr-2"></i>
-            Support Avi's Treatment
-          </h2>
-          <p class="text-gray-600">
-            Help Avi get lifesaving cancer treatment
-          </p>
-        </div>
-
-        <!-- GoFundMe Widget -->
+        <!-- GoFundMe Widget - Original Styling -->
         <div class="gfm-embed" data-url="https://www.gofundme.com/f/help-avi-get-lifesaving-cancer-treatment/widget/medium?sharesheet=undefined&attribution_id=sl:199fb9b9-9364-4cc0-b55c-8f0e54ad9324"></div>
         <script defer src="https://www.gofundme.com/static/js/embed.js"></script>
 
         <!-- Auto-close notice -->
         <div class="text-center mt-4 text-sm text-gray-500">
           <i class="fas fa-clock mr-1"></i>
-          This will close automatically in a few seconds
+          This will close automatically in {timeRemaining} seconds
         </div>
       </div>
     </div>

@@ -1,25 +1,25 @@
 <script>
-  import { onMount } from 'svelte';
+  // Props
+  export let data = [];
+  export let onDelete = () => {};
 
   // State variables
-  let data = [];
   let searchQuery = '';
-  let expandedRecordId = null;
+  let expandedRecords = new Set();
 
-  async function fetchData() {
-    try {
-      const res = await fetch('https://hello.adeycustom.com/api.php');
-      data = await res.json();
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+  // Filter data based on search query
+  $: filteredData = searchQuery 
+    ? data.filter(record => 
+        record.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        record.nurseName?.toLowerCase().includes(searchQuery.toLowerCase())
+      ).sort((a, b) => new Date(b.submittedDate || b.created_at) - new Date(a.submittedDate || a.created_at))
+    : data.sort((a, b) => new Date(b.submittedDate || b.created_at) - new Date(a.submittedDate || a.created_at));
+
+  // Open first accordion by default
+  $: if (filteredData.length > 0 && expandedRecords.size === 0) {
+    expandedRecords.add(filteredData[0].id);
+    expandedRecords = expandedRecords;
   }
-
-  onMount(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 5000);
-    return () => clearInterval(interval);
-  });
 
   function formatDateTime(isoString) {
     const date = new Date(isoString);
@@ -29,158 +29,156 @@
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+      second: '2-digit',
       hour12: true
     }).replace(",", "");
   }
 
-  async function onDelete(id) {
-    try {
-      console.log("Deleting patient with ID:", id);
-
-      const response = await fetch('https://hello.adeycustom.com/api.php', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      console.log(result.message);
-
-      alertSuccessNotification("Patient record deleted successfully.");
-      fetchData();
-    } catch (error) {
-      console.error("Error deleting patient:", error);
-      alertErrorNotification("Failed to delete patient record. Please try again.");
+  function handleDelete(id) {
+    if (confirm('Are you sure you want to delete this record?')) {
+      onDelete(id);
     }
   }
 
-  $: sortedData = data.sort((a, b) => new Date(b.submittedDate) - new Date(a.submittedDate));
-  $: filteredData = sortedData.filter(patient => patient.name.toLowerCase().includes(searchQuery.toLowerCase()));
-
-  function toggleAccordion(id) {
-    expandedRecordId = expandedRecordId === id ? null : id;
-  }
-
-  function alertSuccessNotification(message) {
-    const notification = document.createElement('div');
-    notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-md';
-    notification.textContent = message;
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-      notification.remove();
-    }, 3000);
-  }
-
-  function alertErrorNotification(message) {
-    const notification = document.createElement('div');
-    notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-md';
-    notification.textContent = message;
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-      notification.remove();
-    }, 3000);
+  function toggleRecord(id) {
+    if (expandedRecords.has(id)) {
+      expandedRecords.delete(id);
+    } else {
+      // Close all other records and open only the clicked one
+      expandedRecords.clear();
+      expandedRecords.add(id);
+    }
+    expandedRecords = expandedRecords; // Trigger reactivity
   }
 </script>
 
 <!-- Main Container -->
-<div class="w-full bg-white shadow-lg rounded-lg p-4 md:p-6 overflow-x-auto">
-  <h3 class="text-xl md:text-2xl font-bold mb-4 text-gray-800">Submitted Patient Data</h3>
+<div class="w-full bg-white/80 backdrop-blur-sm shadow-lg rounded-xl p-4 md:p-6">
+  <h3 class="text-xl md:text-2xl font-bold mb-4 text-gray-800 text-center">
+    <i class="fas fa-clipboard-list text-purple-500 mr-2"></i>
+    Vital Signs Records
+  </h3>
 
-  <!-- Search Input -->
-  <input
-    type="text"
-    placeholder="Search by name..."
-    class="w-full px-4 py-2 mb-4 border rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
-    bind:value={searchQuery}
-  />
+     <!-- Search Input -->
+   <div class="relative mb-6">
+     <input
+       type="text"
+       placeholder="Search by Avi's name or nurse..."
+       class="w-full px-4 py-3 pl-12 border-2 border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-300 bg-white/90 backdrop-blur-sm"
+       bind:value={searchQuery}
+     />
+     <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-pink-400"></i>
+   </div>
 
   <!-- Accordion List -->
-  <div class="space-y-4">
+  <div class="space-y-3">
     {#if filteredData.length > 0}
-      {#each filteredData as patient}
-        <div class="border rounded-lg overflow-hidden">
+      {#each filteredData as record}
+        <div class="bg-white rounded-lg border border-pink-200 overflow-hidden">
           <!-- Accordion Header -->
-          <button
-            on:click={() => toggleAccordion(patient.id)}
-            class="w-full flex justify-between items-center p-4 bg-gray-100 hover:bg-gray-200"
+          <div 
+            class="flex justify-between items-center p-4 cursor-pointer bg-gradient-to-r from-pink-50 to-purple-50 hover:from-pink-100 hover:to-purple-100 transition-all duration-300"
+            on:click={() => toggleRecord(record.id)}
           >
-            <div class="flex items-center space-x-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span class="font-medium">{formatDateTime(patient.submittedDate)}</span>
+                         <div class="flex items-center space-x-3">
+               <i class="fas fa-user text-pink-500 text-lg"></i>
+               <div>
+                 <div class="font-bold text-gray-800">{formatDateTime(record.submittedDate || record.created_at)}</div>
+               </div>
+             </div>
+            <div class="flex items-center space-x-3">
+              <i class="fas fa-chevron-down text-pink-500 transition-transform duration-300 {expandedRecords.has(record.id) ? 'rotate-180' : ''}"></i>
             </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6 text-gray-500 transition-transform transform {expandedRecordId === patient.id ? 'rotate-180' : ''}"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
+          </div>
+
           <!-- Accordion Content -->
-          {#if expandedRecordId === patient.id}
-            <div class="p-4 bg-white space-y-2">
-              <div class="flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                <span><strong>Name:</strong> {patient.name}</span>
+          {#if expandedRecords.has(record.id)}
+            <div class="p-4 bg-gray-50 border-t border-pink-200 animate-fade-in">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                 <!-- Avi's Name -->
+                 <div class="flex items-center space-x-2 p-2 bg-pink-50 rounded">
+                   <i class="fas fa-user text-pink-500"></i>
+                   <span class="text-sm text-gray-600">Avi:</span>
+                   <span class="font-medium text-gray-800">[{record.name || 'N/A'}]</span>
+                 </div>
+
+                <!-- Nurse Name -->
+                <div class="flex items-center space-x-2 p-2 bg-purple-50 rounded">
+                  <i class="fas fa-user-nurse text-purple-500"></i>
+                  <span class="text-sm text-gray-600">Nurse:</span>
+                  <span class="font-medium text-gray-800">[{record.nurseName || 'N/A'}]</span>
+                </div>
+
+                <!-- Temperature -->
+                <div class="flex items-center space-x-2 p-2 bg-red-50 rounded">
+                  <i class="fas fa-thermometer-half text-red-500"></i>
+                  <span class="text-sm text-gray-600">Temp:</span>
+                  <span class="font-medium text-gray-800">[{record.temperature || 'N/A'} °C]</span>
+                </div>
+
+                <!-- Blood Pressure -->
+                <div class="flex items-center space-x-2 p-2 bg-pink-50 rounded">
+                  <i class="fas fa-heartbeat text-pink-500"></i>
+                  <span class="text-sm text-gray-600">BP:</span>
+                  <span class="font-medium text-gray-800">[{record.bp || 'N/A'}]</span>
+                </div>
+
+                <!-- Oxygen Rate -->
+                <div class="flex items-center space-x-2 p-2 bg-cyan-50 rounded">
+                  <i class="fas fa-lungs text-cyan-500"></i>
+                  <span class="text-sm text-gray-600">O2:</span>
+                  <span class="font-medium text-gray-800">[{record.oxygenRate || 'N/A'} %]</span>
+                </div>
+
+                <!-- Weight -->
+                <div class="flex items-center space-x-2 p-2 bg-blue-50 rounded">
+                  <i class="fas fa-weight text-blue-500"></i>
+                  <span class="text-sm text-gray-600">Weight:</span>
+                  <span class="font-medium text-gray-800">[{record.weight || 'N/A'} kg]</span>
+                </div>
+
+                
               </div>
-              <hr />
-              <div class="flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                <span><strong>Temperature:</strong> {patient.temperature} °C</span>
+
+              <!-- Delete Button Inside Accordion -->
+              <div class="mt-4 flex justify-end">
+                <button
+                  on:click={() => handleDelete(record.id)}
+                  class="bg-red-500 text-white px-4 py-2 rounded text-sm flex items-center space-x-2 hover:bg-red-600 transition-colors"
+                >
+                  <i class="fas fa-trash-alt"></i>
+                  <span>Delete Record</span>
+                </button>
               </div>
-              <hr />
-              <div class="flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-                <span><strong>Blood Pressure:</strong> {patient.bp}</span>
-              </div>
-              <hr />
-              <div class="flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                <span><strong>Weight:</strong> {patient.weight} kg</span>
-              </div>
-              <hr />
-              <div class="flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
-                </svg>
-                <span><strong>Oxygen Rate:</strong> {patient.oxygenRate} %</span>
-              </div>
-              <hr />
-              <button
-                on:click={() => onDelete(patient.id)}
-                class="mt-4 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 flex items-center space-x-2"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                <span>Delete</span>
-              </button>
             </div>
           {/if}
         </div>
       {/each}
     {:else}
-      <div class="text-center py-4">No data available</div>
+             <div class="text-center py-8">
+         <i class="fas fa-inbox text-gray-400 text-4xl mb-4"></i>
+         <div class="text-gray-600 font-medium">No vital signs records found</div>
+         <div class="text-gray-500 text-sm mt-2">
+           {searchQuery ? 'Try adjusting your search terms' : 'Add some vital signs data for Avi to get started'}
+         </div>
+       </div>
     {/if}
   </div>
 </div>
+
+<style>
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

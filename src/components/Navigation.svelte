@@ -1,132 +1,191 @@
 <script>
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
+  
   // Define static navigation links with icons
   const navLinks = [
     {
       title: 'Home',
       description: 'Go to the home page for an overview.',
       href: '/',
-      bgColor: 'bg-blue-600',
-      hoverBgColor: 'bg-blue-700',
-      icon: 'home-icon'
+      bgColor: 'bg-gradient-to-br from-blue-500 to-blue-600',
+      hoverBgColor: 'from-blue-600 to-blue-700',
+      icon: 'fas fa-home'
     },
     {
       title: 'Feeding',
       description: 'Manage feeding schedules and records.',
       href: '/feeding',
-      bgColor: 'bg-green-600',
-      hoverBgColor: 'bg-green-700',
-      icon: 'feeding-icon'
+      bgColor: 'bg-gradient-to-br from-green-500 to-green-600',
+      hoverBgColor: 'from-green-600 to-green-700',
+      icon: 'fas fa-baby'
     },
     {
       title: 'Vital',
       description: 'Track vital signs and health metrics.',
       href: '/vital',
-      bgColor: 'bg-red-600',
-      hoverBgColor: 'bg-red-700',
-      icon: 'vital-icon'
+      bgColor: 'bg-gradient-to-br from-red-500 to-red-600',
+      hoverBgColor: 'from-red-600 to-red-700',
+      icon: 'fas fa-heartbeat'
     }
   ];
 
+  // Patient Profile Image from static folder
+  const profileImage = '/profile.jpg';
   
-  // Patient Profile Image (Baby Image)
-  const babyImage =
-    'https://i.postimg.cc/fRGQhT16/2B0A0912.jpg'; // Replace with your actual image URL
-</script>
+  let isMenuOpen = false;
+  let isMobile = false;
 
-<!-- Navigation Cards -->
-<div class="container mx-auto p-6">
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-    {#each navLinks as link}
-      <a
-        href={link.href}
-        class={`relative block ${link.bgColor} text-white rounded-lg shadow-md overflow-hidden transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg`}
-      >
-        <!-- Baby Image in Corner -->
-        <div
-          class="absolute top-1 right-1 w-24 h-24 rounded-full overflow-hidden border-white shadow-md opacity-12"
-        >
-          <img
-            src={babyImage}
-            alt="Baby Profile"
-            class="w-full h-full object-cover"
-          />
-        </div>
+  function toggleMenu() {
+    isMenuOpen = !isMenuOpen;
+  }
 
-        <!-- Icon and Text Content -->
-        <div class="p-6 flex items-center">
-          <!-- Icon -->
-          <div class="mr-4">
-            {#if link.icon === 'home-icon'}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-12 w-12 animate-bounce"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0l-2-2m2 2V4a1 1 0 011-1h3m-6 9l2-2 2 2M7 7h10"
-                />
-              </svg>
-            {:else if link.icon === 'feeding-icon'}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-12 w-12 animate-pulse"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2h6a2 2 0 012 2v2"
-                />
-              </svg>
-            {:else if link.icon === 'vital-icon'}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-12 w-12 animate-spin-slow"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
-            {/if}
-          </div>
+  function closeMenu() {
+    isMenuOpen = false;
+  }
 
-          <!-- Title and Description -->
-          <div>
-            <h2 class="text-xl font-bold mb-2">{link.title}</h2>
-            <p class="text-sm">{link.description}</p>
-          </div>
-        </div>
-      </a>
-    {/each}
-  </div>
-</div>
-
-<style>
-  /* Custom animation for slow spin */
-  @keyframes spin-slow {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(380deg);
+  // Enhanced navigation function with cache busting
+  async function navigateToPage(href) {
+    try {
+      // Close menu first
+      closeMenu();
+      
+      // Add cache-busting parameter
+      const cacheBuster = Date.now();
+      const url = href === '/' ? `/?cb=${cacheBuster}` : `${href}?cb=${cacheBuster}`;
+      
+      // Use SvelteKit's goto for better navigation
+      await goto(url, { replaceState: false });
+      
+      // Force page reload if needed (fallback)
+      setTimeout(() => {
+        if (window.location.pathname !== href) {
+          window.location.href = url;
+        }
+      }, 500);
+      
+    } catch (error) {
+      console.error('Navigation error:', error);
+      // Fallback to direct navigation
+      window.location.href = href;
     }
   }
 
-  .animate-spin-slow {
-    animation: spin-slow 4s linear infinite;
+  onMount(() => {
+    // Check if mobile on mount
+    checkMobile();
+    
+    // Add resize listener
+    window.addEventListener('resize', checkMobile);
+    
+    // Clear any existing cache issues
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  });
+
+  function checkMobile() {
+    isMobile = window.innerWidth < 768;
+  }
+</script>
+
+<!-- Mobile Hamburger Menu -->
+<div class="fixed top-4 left-4 md:hidden" style="z-index: 9999;">
+  <!-- Hamburger Button -->
+  <button
+    on:click={toggleMenu}
+    class="bg-white/95 backdrop-blur-md shadow-lg rounded-full p-3 border-2 border-pink-200 transition-all duration-300 hover:shadow-xl"
+    aria-label="Toggle menu"
+  >
+    <div class="w-6 h-6 flex flex-col justify-center items-center">
+      <span class="block w-5 h-0.5 bg-pink-500 transition-all duration-300 {isMenuOpen ? 'rotate-45 translate-y-1.5' : ''}"></span>
+      <span class="block w-5 h-0.5 bg-pink-500 mt-1 transition-all duration-300 {isMenuOpen ? 'opacity-0' : ''}"></span>
+      <span class="block w-5 h-0.5 bg-pink-500 mt-1 transition-all duration-300 {isMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}"></span>
+    </div>
+  </button>
+
+     <!-- Mobile Menu Overlay -->
+   {#if isMenuOpen}
+     <div class="fixed inset-0 bg-black/50" style="z-index: 9998;" on:click={closeMenu}></div>
+   {/if}
+
+   <!-- Mobile Menu Panel -->
+   <div class="absolute top-16 left-0 bg-white shadow-2xl rounded-2xl border-2 border-pink-200 p-4 min-w-64 transition-all duration-300 {isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}" style="z-index: 9999;">
+    <div class="space-y-3">
+             {#each navLinks as link}
+         <button
+           on:click={() => navigateToPage(link.href)}
+           class="w-full text-left block {link.bgColor} text-white rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:shadow-lg group cursor-pointer"
+         >
+           <div class="flex items-center space-x-3">
+             <div class="flex-shrink-0">
+               <i class="{link.icon} text-xl animate-pulse group-hover:animate-bounce"></i>
+             </div>
+             <div class="flex-1">
+               <h3 class="font-bold text-sm">{link.title}</h3>
+               <p class="text-xs opacity-90 mt-1">{link.description}</p>
+             </div>
+             <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+               <i class="fas fa-arrow-right text-xs"></i>
+             </div>
+           </div>
+         </button>
+       {/each}
+    </div>
+  </div>
+</div>
+
+<!-- Desktop Navigation (Hidden on Mobile) -->
+<div class="hidden md:block fixed top-4 left-1/2 transform -translate-x-1/2 z-40">
+  <div class="bg-white/95 backdrop-blur-md shadow-2xl rounded-3xl border-2 border-pink-200 px-6 py-4">
+    <nav class="flex items-center justify-center space-x-8">
+      {#each navLinks as link}
+        <button
+          on:click={() => navigateToPage(link.href)}
+          class="flex items-center space-x-2 {link.bgColor} text-white px-6 py-3 rounded-xl shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl group cursor-pointer"
+        >
+          <i class="{link.icon} text-lg animate-pulse group-hover:animate-bounce"></i>
+          <span class="font-bold text-sm">{link.title}</span>
+          <i class="fas fa-arrow-right text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300"></i>
+        </button>
+      {/each}
+    </nav>
+  </div>
+</div>
+
+
+
+<style>
+  /* Custom animations */
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Responsive text adjustments */
+  @media (max-width: 640px) {
+    .text-sm {
+      font-size: 0.875rem;
+    }
+    .text-base {
+      font-size: 1rem;
+    }
   }
 </style>

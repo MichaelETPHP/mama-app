@@ -3,170 +3,238 @@
 </script>
 
 <style>
-  /* From Uiverse.io by Li-Deheng (modified for black background and white loader) */
-  .loader {
+  .loader-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 50%, #e1bee7 100%);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    --color: white; /* Changed from hsl(0, 0%, 87%) to white */
-    --animation: 2s ease-in-out infinite;
-    background-color: black; /* Set background to black */
-    height: 100vh; /* Full viewport height */
-    width: 100vw; /* Full viewport width */
+    z-index: 9999;
+    overflow: hidden;
   }
 
-  .loader .circle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .rotating-heart {
     position: relative;
-    width: 20px;
-    height: 20px;
-    border: solid 2px var(--color); /* Border color now white */
-    border-radius: 50%;
-    margin: 0 10px;
-    background-color: transparent;
-    animation: circle-keys var(--animation);
+    width: 120px;
+    height: 120px;
+    animation: rotate 3s linear infinite;
   }
 
-  .loader .circle .dot {
+  .heart {
     position: absolute;
+    top: 50%;
+    left: 50%;
     transform: translate(-50%, -50%);
-    width: 16px;
-    height: 16px;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(45deg, #e91e63, #f06292);
     border-radius: 50%;
-    background-color: var(--color); /* Dot color now white */
-    animation: dot-keys var(--animation);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 32px rgba(233, 30, 99, 0.3);
+    animation: pulse 2s ease-in-out infinite;
   }
 
-  .loader .circle .outline {
+  .heart::before {
+    content: "❤️";
+    font-size: 40px;
+    animation: heartBeat 1.5s ease-in-out infinite;
+  }
+
+  .baby-icon {
     position: absolute;
-    transform: translate(-50%, -50%);
-    width: 20px;
-    height: 20px;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    animation: float 2s ease-in-out infinite;
+  }
+
+  .doctor-icon {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    animation: float 2s ease-in-out infinite reverse;
+  }
+
+  .loading-text {
+    margin-top: 40px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #e91e63;
+    text-align: center;
+    animation: fadeInOut 2s ease-in-out infinite;
+  }
+
+  .loading-dots {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    background: #e91e63;
     border-radius: 50%;
-    animation: outline-keys var(--animation);
+    animation: dotPulse 1.5s ease-in-out infinite;
   }
 
-  .circle:nth-child(2) {
-    animation-delay: 0.3s;
+  .dot:nth-child(2) {
+    animation-delay: 0.2s;
   }
 
-  .circle:nth-child(3) {
-    animation-delay: 0.6s;
+  .dot:nth-child(3) {
+    animation-delay: 0.4s;
   }
 
-  .circle:nth-child(4) {
-    animation-delay: 0.9s;
+  .floating-hearts {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
   }
 
-  .circle:nth-child(5) {
-    animation-delay: 1.2s;
+  .floating-heart {
+    position: absolute;
+    font-size: 20px;
+    color: rgba(233, 30, 99, 0.3);
+    animation: floatAround 4s linear infinite;
   }
 
-  .circle:nth-child(2) .dot {
-    animation-delay: 0.3s;
+  .floating-heart:nth-child(1) {
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
   }
 
-  .circle:nth-child(3) .dot {
-    animation-delay: 0.6s;
+  .floating-heart:nth-child(2) {
+    top: 20%;
+    right: 15%;
+    animation-delay: 1s;
   }
 
-  .circle:nth-child(4) .dot {
-    animation-delay: 0.9s;
+  .floating-heart:nth-child(3) {
+    bottom: 30%;
+    left: 20%;
+    animation-delay: 2s;
   }
 
-  .circle:nth-child(5) .dot {
-    animation-delay: 1.2s;
+  .floating-heart:nth-child(4) {
+    bottom: 20%;
+    right: 10%;
+    animation-delay: 3s;
   }
 
-  .circle:nth-child(1) .outline {
-    animation-delay: 0.9s;
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
-  .circle:nth-child(2) .outline {
-    animation-delay: 1.2s;
+  @keyframes pulse {
+    0%, 100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.1);
+    }
   }
 
-  .circle:nth-child(3) .outline {
-    animation-delay: 1.5s;
-  }
-
-  .circle:nth-child(4) .outline {
-    animation-delay: 1.8s;
-  }
-
-  .circle:nth-child(5) .outline {
-    animation-delay: 2.1s;
-  }
-
-  @keyframes circle-keys {
-    0% {
+  @keyframes heartBeat {
+    0%, 100% {
       transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateX(-50%) translateY(0px);
+    }
+    50% {
+      transform: translateX(-50%) translateY(-10px);
+    }
+  }
+
+  @keyframes fadeInOut {
+    0%, 100% {
+      opacity: 0.7;
+    }
+    50% {
       opacity: 1;
     }
+  }
 
-    50% {
-      transform: scale(1.5);
+  @keyframes dotPulse {
+    0%, 100% {
+      transform: scale(1);
       opacity: 0.5;
     }
-
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  @keyframes dot-keys {
-    0% {
-      transform: scale(1);
-    }
-
     50% {
-      transform: scale(0);
-    }
-
-    100% {
-      transform: scale(1);
+      transform: scale(1.2);
+      opacity: 1;
     }
   }
 
-  @keyframes outline-keys {
+  @keyframes floatAround {
     0% {
-      transform: scale(0);
-      outline: solid 20px var(--color); /* Outline color now white */
-      outline-offset: 0;
+      transform: translateY(100vh) rotate(0deg);
+      opacity: 0;
+    }
+    10% {
       opacity: 1;
     }
-
+    90% {
+      opacity: 1;
+    }
     100% {
-      transform: scale(1);
-      outline: solid 0 transparent;
-      outline-offset: 20px;
+      transform: translateY(-100px) rotate(360deg);
       opacity: 0;
     }
   }
 </style>
 
-<div class="loader">
-  <div class="circle">
-    <div class="dot"></div>
-    <div class="outline"></div>
+<div class="loader-container">
+  <!-- Floating Background Hearts -->
+  <div class="floating-hearts">
+    <div class="floating-heart">💕</div>
+    <div class="floating-heart">💖</div>
+    <div class="floating-heart">💝</div>
+    <div class="floating-heart">💗</div>
   </div>
-  <div class="circle">
-    <div class="dot"></div>
-    <div class="outline"></div>
+
+  <!-- Main Rotating Heart with Icons -->
+  <div class="rotating-heart">
+    <div class="heart">
+      <div class="baby-icon">👶</div>
+      <div class="doctor-icon">👩‍⚕️</div>
+    </div>
   </div>
-  <div class="circle">
-    <div class="dot"></div>
-    <div class="outline"></div>
+
+  <!-- Loading Text -->
+  <div class="loading-text">
+    Loading Avi's App...
   </div>
-  <div class="circle">
+
+  <!-- Loading Dots -->
+  <div class="loading-dots">
     <div class="dot"></div>
-    <div class="outline"></div>
-  </div>
-  <div class="circle">
     <div class="dot"></div>
-    <div class="outline"></div>
+    <div class="dot"></div>
   </div>
 </div>

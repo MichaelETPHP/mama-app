@@ -5,10 +5,11 @@
 
   let isLoading = true;
 
-  onMount(async () => {
+  onMount(() => {
     // Simulate a delay (e.g., fetching data)
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    isLoading = false; // Hide loader after data is loaded
+    setTimeout(() => {
+      isLoading = false; // Hide loader after data is loaded
+    }, 3000);
   });
 </script>
 
